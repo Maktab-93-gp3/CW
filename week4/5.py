@@ -1,13 +1,14 @@
 from __future__ import annotations
 import uuid
+import re
 
 
-class school_class:
+class School_Class:
     """
     A school class for storing students and prof fields.   
     """
 
-    def __init__(self, name: str, pr: prof):
+    def __init__(self, name: str, pr: Prof):
         self.name = name
         self.prof = pr
         self.list_of_students = []
@@ -17,11 +18,11 @@ class school_class:
         return f"Class {self.name} \
             with prof {self.prof} has {len(self.list_of_students)} students in it."
 
-    def add_student_to_class(self, st: student):
+    def add_student_to_class(self, st: Student):
         self.list_of_students.append(st)
 
 
-class faculty:
+class Faculty:
     def __init__(self, number):
         self.number = number
         self.list_of_classes = []
@@ -41,7 +42,7 @@ class faculty:
         return len(self.list_of_classes)
 
 
-class human:
+class Human:
     def __init__(self, name, age, email):
         self.name = name
         self.age = age
@@ -75,39 +76,108 @@ class human:
 
     @email.setter
     def email(self, email):
-        if isinstance(email, str) and email.endswith('@gmail.com'):
+        regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+        if (re.fullmatch(regex, email)):
             self.__email = email
         else:
-            raise ValueError("We do not accept people who do not have gmail!")
+            raise ValueError("Invalid Email!")
 
 
 # st num: st + 2digits for entrance year + 2digits for faculty + 2digits for id
 # pr num: pr + 2digits for entrance year + 2digits for faculty + 2digits for id
 
-class student(human):
-    def __init__(self, name, age, email, avg, faculty_numbr, entrance_year, id):
+class Student(Human):
+    def __init__(self, name, age, email, score, avg, faculty_numbr, entrance_year, id):
         super().__init__(name, age, email)
+        self.score = score
         self.avg = avg
         self.faculty_number = faculty_numbr
         self.number = self.generate_st_number(entrance_year, faculty_numbr, id)
 
     def __str__(self):
         return f"{self.name} with email {self.email} has {self.number}\
-            and average score of {self.age}"
+            and average score of {self.avg}"
 
     def generate_st_number(self, entrance_year, faculty_number, id):
         return f"st{entrance_year}{faculty_number}{id}"
 
+    def __add__(self, other):
+        return self.score + other.score
 
-class prof(human):
-    def __init__(self, name, age, email, degree, entrance_year, faculty_number, id):
-        super().__init__(name, age, email)
+    def __gt__(self, other):
+        return self.score > other.score
+
+
+class User(Human):
+    def __init__(self, name, phone_number, email, password, address):
+        super().__init__(name, email)
+        self.phone_number = phone_number
+        self.password = password
+        self.address = address
+
+    @property
+    def password(self):
+        return self.__password
+
+    @password.setter
+    def set_password(self, password):
+        l, u, p, d = 0, 0, 0, 0
+        s = "R@m@_f0rtu9e$"
+        capitalalphabets="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        smallalphabets="abcdefghijklmnopqrstuvwxyz"
+        specialchar="$@_"
+        digits="0123456789"
+        if (len(s) >= 8):
+            for i in s:
+                if (i in smallalphabets):
+                    l+=1           
+                if (i in capitalalphabets):
+                    u+=1           
+                if (i in digits):
+                    d+=1           
+                if(i in specialchar):
+                        p+=1       
+        if (l>=1 and u>=1 and p>=1 and d>=1 and l+p+u+d==len(s)):
+            self.__password = password
+        else:
+            print("Invalid Password")
+
+
+class Staff(User):
+    def __init__(self, name, phone_number, email, password, address, service_location_name, service_location_info, salary):
+      super().__init__(name, phone_number, email, password, address)
+      self.service_location_name = service_location_name
+      self.service_location_info = service_location_info
+      self.salary = salary
+
+    @property
+    def salary(self):
+        return self.__salary
+
+    @salary.setter
+    def salary(self, salary):
+        self.__salary = salary
+
+    def final_salary(self):
+        if self.salary <= 5000000 :
+            insurance =int(0.07 * self.salary)
+            tax =int(0.09 * self.salary)
+            return self.salary - insurance - tax
+        else :
+            insurance = 0.07 * (self.salary-5000000)
+            tax = 0.09 * (self.salary-5000000)
+            return self.salary - insurance - tax
+
+
+class Prof(Staff):
+    def __init__(self, name, age, email, degree, entrance_year, faculty_number, id, salary):
+        super().__init__(name, age, email, salary)
         self.degree = degree
         self.number = self.generate_pr_number(
             entrance_year, faculty_number, id)
 
     def __str__(self):
-        return f"{self.name} has {self.degree}"
+        return f"{self.name} has {self.degree} with {self.salary} salary."
 
     def generate_pr_number(self, entrance_year, faculty_number, id):
         return f"pr{entrance_year}{faculty_number}{id}"
@@ -121,7 +191,7 @@ faculties = {
 }
 university_faculties_list = []
 for f in faculties.keys():
-    new_faculty = faculty(faculties[f])
+    new_faculty = Faculty(faculties[f])
     university_faculties_list.append(new_faculty)
 
 
@@ -140,14 +210,14 @@ for _faculty in university_faculties_list:
     list_of_profs = []
     for i in range(1, 3):
         new_item = entrance_year_of_each_prof.popitem()
-        new_prof = prof(new_item[0], *new_item[1],
+        new_prof = Prof(new_item[0], *new_item[1],
                         str(_faculty.number), str(i))
         list_of_profs.append(new_prof)
 
     for i in range(1, 5):
-        new_class = school_class(name=f'andishe{i}', pr=list_of_profs[i % 2])
+        new_class = School_Class(name=f'andishe{i}', pr=list_of_profs[i % 2])
         for _stu in range(10):
-            new_student = student(name=str(_stu), age=22, email='s@gmail.com',
+            new_student = Student(name=str(_stu), age=22, email='s@gmail.com',
                                   avg=20, faculty_numbr=_faculty.number, entrance_year=98, id=_stu)
             new_class.add_student_to_class(new_student)
         _faculty.list_of_classes.append(new_class)
