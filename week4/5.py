@@ -30,7 +30,7 @@ class Faculty:
     def __str__(self):
         return f"Faculty {self.number} "
 
-    def add_class_to_faculty(self, Class: school_class):
+    def add_class_to_faculty(self, Class: School_Class):
         self.list_of_classes.append(Class)
 
     @property
