@@ -28,7 +28,8 @@ class Shelf:
     def total_pages(self):
         return self.total_pages
     @total_pages.setter
-    def total_pages():
-        if 
+    def total_pages(self, totalpages):
+        if self.total_pages > 10000:
+            raise ValueError ('shelf is full')
 
     
