@@ -69,7 +69,8 @@ class Soccerplayer(Human):
         else:
             raise ValueError('invalid score')
 
-
+    def __str__(self) -> str:
+        return self.name
 class Coach(Human):
     def __init__(self, name, age, salary, start_date, end_date):
         super().__init__(name, age)
@@ -138,15 +139,22 @@ with {self.coach} coaching.This team has ${self.balance}$." + '\n' + '-'*15
             self.coach = ch
             ch.is_assigned = True
 
+    def get_random_player(self):
+        return random.choice(self.list_of_players)
+
     def buy_player(self, pl: Soccerplayer, cost: int):
         if cost <= self.balance:
             self.balance -= cost
             self.add_player(pl)
+            print(f"You bought {pl}!")
+        else:
+            print('You are broke bro!')
 
     def sell_player(self, pl: Soccerplayer, cost: int):
         if pl not in self.list_of_players:
             raise KeyError('Where is your player asshole?')
         self.balance += cost
+        print(f'{pl} was successfuly bye bye.')
         return self.list_of_players.pop(self.list_of_players.index(pl))
 
     def __gt__(self, other):
@@ -210,6 +218,12 @@ for i, team in enumerate(list_of_teams):
         temp = random.choice(list_of_players)
         team.add_player(temp)
         list_of_players.remove(temp)
+
+sold = list_of_teams[0].sell_player(list_of_teams[0].get_random_player(), 100000)
+list_of_teams[1].buy_player(sold, 90000)
+
 Champions_league = League(list_of_teams)
 Champions_league.matchmaking()
 Champions_league.display_league_table()
+
+
