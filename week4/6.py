@@ -1,4 +1,15 @@
 import random
+import datetime
+
+
+def random_date(start, end):
+
+    delta = end - start
+    int_delta = delta.days
+    random_days = random.randrange(int_delta)
+    return start + datetime.timedelta(days=random_days)
+
+# print(random_date(datetime.datetime(2022,2,13),datetime.datetime.today()))
 
 
 class Human:
@@ -11,7 +22,7 @@ class Human:
         return self._age
 
     @age.setter
-    def set_age(self, age):
+    def age(self, age):
         if int(age) > 0:
             self._age = age
         else:
@@ -30,7 +41,7 @@ class Soccerplayer(Human):
         return self.__salary
 
     @salary.setter
-    def set_salary(self, salary):
+    def salary(self, salary):
         if float(salary) > 0:
             self.__salary = salary
         else:
@@ -41,7 +52,7 @@ class Soccerplayer(Human):
         return self._age
 
     @age.setter
-    def set_age(self, age):
+    def age(self, age):
         if int(age) >= 15 and int(age) < 30:
             self._age = age
         else:
@@ -52,7 +63,7 @@ class Soccerplayer(Human):
         return self._score
 
     @score.setter
-    def set_score(self, score):
+    def score(self, score):
         if score > 0 and score < 100:
             self._score = score
         else:
@@ -72,17 +83,20 @@ class Coach(Human):
         return self._age
 
     @age.setter
-    def set_age(self, age):
+    def age(self, age):
         if int(age) >= 30 and int(age) < 65:
             self._age = age
         else:
             raise ValueError('you are not qualified to coach')
 
+    def __str__ (self):
+        return self.name
+
 
 class Team:
-    def __init__(self, balance, name):
+    def __init__(self, name, balance):
         self.list_of_players = []
-        self.score = 0
+        self._score = 0
         self.coach = None
         self.balance = balance
         self.name = name
@@ -92,15 +106,16 @@ class Team:
         return self._score
 
     @score.setter
-    def add_score(self, score):
+    def score(self, score):
         if score >= 0:
             self._score += score
         else:
             raise ValueError('invalid score')
 
     def __str__(self):
-        return f"'-'*15\n{self.name} has scored {self.score} \
-            with {self.coach} coaching.This team has ${self.balance}$.\n" + '-'*15
+
+        return '-'*15 + '\n' + f"{self.name} has scored {self.score} \
+with {self.coach} coaching.This team has ${self.balance}$." + '\n' + '-'*15
 
     def check_number_of_player(self):
         if len(self.list_of_players) == 11:
@@ -145,9 +160,8 @@ class Team:
 
 
 class League:
-    def __init__(self):
-        self.list_of_teams = [Team(random.randrange(
-            1000000, 10000000, 1000000)) for _ in range(5)]
+    def __init__(self, list_of_teams):
+        self.list_of_teams = list_of_teams
 
     def matchmaking(self):
         while True:
@@ -166,9 +180,36 @@ class League:
 
     def update_scores(self, result, t1, t2):
         if result == 'win t1':
-            t1.add_score(3)
+            t1.score += 3
         elif result == 'win t2':
-            t2.add_score(3)
+            t2.score += 3
         else:
-            t1.add_score(1)
-            t2.add_score(1)
+            t1.score += 1
+            t2.score += 1
+
+
+list_of_pos = ['RW', 'LW', 'CF', 'CM', 'CD', 'LB', 'RB', 'GK']
+list_of_players = []
+for i in range(1, 56):
+    list_of_players.append(Soccerplayer(f'Neymar{i}', random.randrange(18, 30), random.randrange(
+        10000, 50000, 10000), random.choice(list_of_pos), random.randrange(60, 90, 5)))
+list_of_coach = []
+for i in range(1, 6):
+    list_of_coach.append(Coach(f'Pep{i}', random.randrange(36, 60, 2), random.randrange(10000, 500000, 10000), random_date(datetime.datetime(2010, 2, 13), datetime.datetime(2017, 2, 13)),
+                               random_date(datetime.datetime(2018, 2, 13), datetime.datetime.today())))
+list_of_teams_name = ['Real Madrid', 'Barca',
+                      'PSG', 'Arsenal', 'Chelsea', 'Man U', 'Man C']
+list_of_teams = [Team(list_of_teams_name.pop(), random.randrange(
+    1000000, 10000000, 1000000)) for _ in range(5)]
+
+for i, team in enumerate(list_of_teams):
+    temp = random.choice(list_of_coach)
+    team.set_coach(temp)
+    list_of_coach.remove(temp)
+    for pl in range(11):
+        temp = random.choice(list_of_players)
+        team.add_player(temp)
+        list_of_players.remove(temp)
+Champions_league = League(list_of_teams)
+Champions_league.matchmaking()
+Champions_league.display_league_table()
