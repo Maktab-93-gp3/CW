@@ -1,4 +1,6 @@
 import random
+
+
 class Human:
     def __init__(self, name, age):
         self.name = name
@@ -78,22 +80,27 @@ class Coach(Human):
 
 
 class Team:
-    def __init__(self, balance):
+    def __init__(self, balance, name):
         self.list_of_players = []
         self.score = 0
         self.coach = None
         self.balance = balance
+        self.name = name
 
     @property
     def score(self):
         return self._score
 
     @score.setter
-    def set_score(self, score):
+    def add_score(self, score):
         if score >= 0:
-            self._score = score
+            self._score += score
         else:
             raise ValueError('invalid score')
+
+    def __str__(self):
+        return f"'-'*15\n{self.name} has scored {self.score} \
+            with {self.coach} coaching.This team has ${self.balance}$.\n" + '-'*15
 
     def check_number_of_player(self):
         if len(self.list_of_players) == 11:
@@ -129,31 +136,39 @@ class Team:
 
     def __gt__(self, other):
         return self.score > other.score
-    
+
     def __ge__(self, other):
         return self.score >= other.score
-        
+
     def __eq__(self, other):
         return self.score == other.score
 
+
 class League:
     def __init__(self):
-        self.list_of_teams = [Team(random.randrange(1000000,10000000,1000000)) for _ in range(5)]
+        self.list_of_teams = [Team(random.randrange(
+            1000000, 10000000, 1000000)) for _ in range(5)]
+
     def matchmaking(self):
         while True:
-            t1 = random.randrange(0,5)
-            t2 = random.randrange(0,5)
+            t1 = random.randrange(0, 5)
+            t2 = random.randrange(0, 5)
             if t2 != t1:
                 break
-        
-        result = ['win t1', 'win t2', 'draw'][random.randint(0,2)]
-        self.update_scores(result,t1,t2)
-    def update_scores(self, result, t1,t2):
+
+        result = ['win t1', 'win t2', 'draw'][random.randint(0, 2)]
+        self.update_scores(
+            result, self.list_of_teams[t1], self.list_of_teams[t2])
+
+    def display_league_table(self):
+        for team in sorted(self.list_of_teams, key=lambda x: x.score):
+            print(team)
+
+    def update_scores(self, result, t1, t2):
         if result == 'win t1':
-            pass
-        # to do
-        
-
-
-
-
+            t1.add_score(3)
+        elif result == 'win t2':
+            t2.add_score(3)
+        else:
+            t1.add_score(1)
+            t2.add_score(1)
