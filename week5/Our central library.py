@@ -60,6 +60,10 @@ class Shelf:
         self._total_pages = 0
 
     @property
+    def identification(self):
+        return f"{self.shelf_num}-{self.category_num}"
+    
+    @property
     def total_pages(self):
         return self._total_pages
 
@@ -95,12 +99,16 @@ class Repo:
     
 class Category:
     num_of_books_in_category = {}
+    
     def __init__(self, name):
         self.name = name
-        self.__class__.num_of_books_in_category.setdefault(name, 0)
-        self.__class__.num_of_books_in_category[name] += 1
-
-
+        self.set_num_of_books_in_category(name)
+        
+    @classmethod
+    def set_num_of_books_in_category(cls, name):
+        cls.num_of_books_in_category[name] += 1
+        cls.num_of_books_in_category.setdefault(name, 0)
+        
     def __len__(self):
         return self.__class__.num_of_books_in_category[self.name]
     
